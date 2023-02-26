@@ -33,7 +33,7 @@ def download_and_load_to_lake(url: str = "", conn_id: str = "aws"):
     if ".csv" in url:
         with open(file, "wb") as f:
             f.write(r.content)
-        s3_hook.load_file(file, f"BRONZE/anp/{file}", "etl-data-lakehouse")
+        s3_hook.load_file(file, f"LANDING_ZONE/anp/{file}", "etl-data-lakehouse")
         os.remove(file)
     # Se for zip eu baixo e unzipo para verificar se CSV está no lake
     elif ".zip" in url:
@@ -47,4 +47,4 @@ def download_and_load_to_lake(url: str = "", conn_id: str = "aws"):
         # Se arquivo não estiver no lake então sobre
         if unziped_file_name not in files_already_on_lake:
             file = f"./file.zip/{unziped_file_name}"
-            s3_hook.load_file(file, f"BRONZE/anp/{file.split('/')[-1]}", "etl-data-lakehouse")
+            s3_hook.load_file(file, f"LANDING_ZONE/anp/{file.split('/')[-1]}", "etl-data-lakehouse")
