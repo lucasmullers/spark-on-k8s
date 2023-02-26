@@ -10,7 +10,7 @@ image:
   # -- Image repository
   repository: ghcr.io/googlecloudplatform/spark-operator
   # -- Image pull policy
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # -- if set, override the image tag whose default is the chart appVersion.
   tag: ""
 
