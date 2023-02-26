@@ -11,11 +11,11 @@ spec:
   mainApplicationFile: "s3a://spark-k8s-scripts/convert_tables_to_delta.py"
   sparkConf:
     "spark.hadoop.fs.s3.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
     "spark.hadoop.fs.s3a.path.style.access": "True"
     "spark.hadoop.fs.s3a.fast.upload": "True"
     "spark.hadoop.fs.s3a.multipart.size": "104857600"
     "fs.s3a.connection.maximum": "100"
-    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
     "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension"
     "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
 
