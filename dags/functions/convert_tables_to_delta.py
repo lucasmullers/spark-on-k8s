@@ -25,7 +25,9 @@ def optimize_compaction_and_run_vacuum(spark: SparkSession, path: str = ""):
 
 def transform_tables_to_delta():
     spark = create_spark_session()
-    df = spark.read.csv(f"s3a://etl-data-lakehouse/LANDING_ZONE/anp/", header=True, sep=";", inferSchema=True)
+    df = spark.read.csv("s3a://etl-data-lakehouse/LANDING_ZONE/anp/*.csv", header=True, sep=";", inferSchema=True)
+
+    print(df.limit(5).show())
 
     # Salva dados cadastrais dos postos na camada silver
     (
