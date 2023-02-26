@@ -131,3 +131,4 @@ dmypy.json
 .vscode
 .idea
 aws-secrets.yaml
+kubernetes/spark-operator/aws-secrets.yaml
