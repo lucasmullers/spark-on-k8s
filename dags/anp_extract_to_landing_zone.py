@@ -24,7 +24,7 @@ def scrappy_available_tables():
     return url_of_tables_to_download
 
 
-DAG_ID = "EXTRACT-ANP-DATA-BRONZE"
+DAG_ID = "EXTRACT-ANP-DATA-LANDING-ZONE"
 DEFAULT_ARGS = {
     "owner": "Lucas Müller",
     "depends_on_past": False,
@@ -42,7 +42,7 @@ with DAG(
     schedule_interval="0 9 1,15 * *",
     catchup=True,
     dagrun_timeout=timedelta(minutes=45),
-    tags=["ANP", "LANDING-ZOE"],
+    tags=["ANP", "LANDING-ZONE"],
     doc_md="DAG to extract ANP DATA to Landing Zone",
 ) as dag:
 
