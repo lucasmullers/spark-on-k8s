@@ -1,3 +1,6 @@
+from pyspark.sql import SparkSession
+
+
 def create_spark_session(connection_id: str = "aws"):
     import json
     from pyspark.sql import SparkSession
@@ -34,8 +37,6 @@ def optimize_compaction_and_run_vacuum(spark: SparkSession, path: str = ""):
 
 
 def transform_tables_to_delta():
-    from pyspark.sql.functions import col, when, regexp_replace, trim
-
     spark = create_spark_session()
     df = spark.read.csv(f"s3a://etl-data-lakehouse/LANDING_ZONE/anp/", header=True, sep=";", inferSchema=True)
 
