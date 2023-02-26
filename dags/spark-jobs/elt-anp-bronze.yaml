@@ -18,16 +18,21 @@ spec:
     "fs.s3a.connection.maximum": "100"
     "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension"
     "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
-
   sparkVersion: "3.3.2"
   restartPolicy:
     type: Never
   driver:
     cores: 1
     coreLimit: "1200m"
-    memory: "512m"
+    memory: "1024m"
     serviceAccount: spark-operator-spark
+    envFrom:
+      - secretRef:
+          name: aws-secret
   executor:
     cores: 1
-    instances: 2
-    memory: "512m"
+    instances: 4
+    memory: "1024m"
+    envFrom:
+      - secretRef:
+          name: aws-secret
