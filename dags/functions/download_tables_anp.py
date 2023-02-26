@@ -7,7 +7,7 @@ from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 
 def get_files_on_lakehouse(s3_hook: S3Hook, bucket_name: str = "etl-data-lakehouse"):
-    files_on_lakehouse = s3_hook.list_keys(bucket_name=bucket_name, prefix="LANDING/anp/")
+    files_on_lakehouse = s3_hook.list_keys(bucket_name=bucket_name, prefix="LANDING_ZONE/anp/")
     files_on_lakehouse = [file.split("/")[-1] for file in files_on_lakehouse]
     print("Files on lake response: ", files_on_lakehouse)
 
