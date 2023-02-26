@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
-from functions.download_table_anp import download_and_load_to_lake
+from functions.download_tables_anp import download_and_load_to_lake
 
 
 def scrappy_available_tables():
