@@ -1,11 +1,10 @@
-from functions.transform_to_bronze import create_cadastro_posto_table, create_informacao_venda_table
-
 from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
-from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
+# from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
+
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
 DEFAULT_ARGS = {
