@@ -1,0 +1,8 @@
+delta-spark==2.1.0
+findspark==2.0.1
+openpyxl==3.0.10
+xlrd==2.0.1
+pyspark==3.3.0
+pyarrow==6.0.1
+fastparquet==0.8.1
+apache-airflow-providers-amazon==7.1.0
