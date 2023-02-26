@@ -44,8 +44,9 @@ with DAG(
     anp_bronze_layer = SparkKubernetesOperator(
         task_id='copy_anp_data_to_bronze_layer',
         namespace='processing',
-        application_file='elt-anp-bronze.yaml',
-        kubernetes_conn_id='kubernetes_in_cluster',
+        # application_file='elt-anp-bronze.yaml',
+        application_file='spark-jobs/hello-world.yaml',
+        kubernetes_conn_id='kubernetes_in_cluster'
     )
 
     _ = start >> anp_bronze_layer >> finish
