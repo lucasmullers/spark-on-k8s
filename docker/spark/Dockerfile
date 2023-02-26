@@ -30,9 +30,11 @@ RUN apt-get update && \
 
 RUN rm -f ${SPARK_HOME}/jars/aws-java-sdk-bundle-*.jar
 RUN wget --quiet https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.901/aws-java-sdk-bundle-1.11.901.jar -P ${SPARK_HOME}/jars/
-RUN wget --quiet https://repo1.maven.org/maven2/io/delta/delta-core_2.13/2.1.1/delta-core_2.13-2.1.1.jar -P ${SPARK_HOME}/jars/
-RUN wget --quiet https://repo1.maven.org/maven2/io/delta/delta-storage/2.1.1/delta-storage-2.1.1.jar -P ${SPARK_HOME}/jars/
+RUN wget --quiet https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.1/hadoop-aws-3.3.1.jar -P ${SPARK_HOME}/jars/
+RUN wget --quiet https://repo1.maven.org/maven2/io/delta/delta-core_2.12/2.2.0/delta-core_2.12-2.2.0.jar -P ${SPARK_HOME}/jars/
+RUN wget --quiet https://repo1.maven.org/maven2/io/delta/delta-storage/2.2.0/delta-storage-2.2.0.jar -P ${SPARK_HOME}/jars/
 RUN chmod 0644 ${SPARK_HOME}/jars/aws-java-sdk-bundle*.jar
+RUN chmod 0644 ${SPARK_HOME}/jars/hadoop-aws*.jar
 RUN chmod 0644 ${SPARK_HOME}/jars/delta-core*.jar
 RUN chmod 0644 ${SPARK_HOME}/jars/delta-storage*.jar
 
