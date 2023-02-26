@@ -27,6 +27,9 @@ def transform_tables_to_delta():
     spark = create_spark_session()
     df = spark.read.csv("s3a://etl-data-lakehouse/LANDING_ZONE/anp/*.csv", header=True, sep=";", inferSchema=True)
 
+    for column in df.columns:
+        df = df.withColumnRenamed(column, column.replace(" ", "_").lower())
+
     print(df.limit(5).show())
 
     # Salva dados cadastrais dos postos na camada silver
