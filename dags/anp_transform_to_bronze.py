@@ -3,7 +3,7 @@ from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
-# from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
+from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
 
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
@@ -44,9 +44,15 @@ with DAG(
     anp_bronze_layer = SparkKubernetesOperator(
         task_id='copy_anp_data_to_bronze_layer',
         namespace='processing',
-        # application_file='elt-anp-bronze.yaml',
         application_file='spark-jobs/hello-world.yaml',
         kubernetes_conn_id='kubernetes_in_cluster'
     )
 
-    _ = start >> anp_bronze_layer >> finish
+    monitor_task = SparkKubernetesSensor(
+        task_id='monitor_anp_task',
+        namespace='processing',
+        application_name="{{ task_instance.xcom_pull(task_ids='copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
+        kubernetes_conn_id='kubernetes_in_cluster'
+    )
+
+    _ = start >> anp_bronze_layer >> monitor_task >> finish
