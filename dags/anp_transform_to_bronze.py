@@ -74,7 +74,6 @@ with DAG(
         kubernetes_conn_id='kubernetes_in_cluster',
         attach_log=True,
         on_retry_callback=clear_upstream_task,
-        retry=
     )
 
     _ = start >> anp_bronze_layer >> monitor_task >> finish
