@@ -4,6 +4,8 @@ from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
 from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
+from airflow.models import taskinstance
+from airflow.utils.db import provide_session
 
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
@@ -11,9 +13,26 @@ DEFAULT_ARGS = {
     "owner": "Lucas Müller",
     "depends_on_past": False,
     "start_date": datetime(2023, 1, 1),
-    "retries": 2,
+    "retries": 0,
     "retry_delay": timedelta(seconds=30)
 }
+
+
+@provide_session
+def clear_tasks(tis, session=None, activate_dag_runs=False, dag=None) -> None:
+    taskinstance.clear_task_instances(
+        tis=tis,
+        session=session,
+        activate_dag_runs=activate_dag_runs,
+        dag=dag,
+    )
+
+
+def clear_upstream_task(context):
+    tasks_to_clear = context["params"].get("tasks_to_clear", [])
+    all_tasks = context["dag_run"].get_task_instances()
+    tasks_to_clear = [ti for ti in all_tasks if ti.task_id in tasks_to_clear]
+    clear_tasks(tasks_to_clear, dag=context["dag"])
 
 
 with DAG(
@@ -52,7 +71,10 @@ with DAG(
         task_id='monitor_anp_task',
         namespace='processing',
         application_name="{{ task_instance.xcom_pull(task_ids='copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
-        kubernetes_conn_id='kubernetes_in_cluster'
+        kubernetes_conn_id='kubernetes_in_cluster',
+        attach_log=True,
+        on_retry_callback=clear_upstream_task,
+        retry=
     )
 
     _ = start >> anp_bronze_layer >> monitor_task >> finish
