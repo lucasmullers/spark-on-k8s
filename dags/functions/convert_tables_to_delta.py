@@ -16,13 +16,6 @@ def create_spark_session(connection_id: str = "aws"):
     return spark
 
 
-def optimize_compaction_and_run_vacuum(spark: SparkSession, path: str = ""):
-    from delta.tables import DeltaTable
-    delta_table = DeltaTable.forPath(spark, path)
-    delta_table.optimize().executeCompaction()
-    delta_table.vacuum(retentionHours=168)
-
-
 def transform_tables_to_delta():
     spark = create_spark_session()
     df = spark.read.csv("s3a://etl-data-lakehouse/LANDING_ZONE/anp/*.csv", header=True, sep=";", inferSchema=True)
@@ -40,7 +33,9 @@ def transform_tables_to_delta():
     )
 
     # Executa otimização da compactação par melhorar velocidade de leitura das tabelas
-    optimize_compaction_and_run_vacuum(spark, path="s3a://etl-data-lakehouse/BRONZE/anp/")
+    from delta.tables import DeltaTable
+    delta_table = DeltaTable.forPath(spark, "s3a://etl-data-lakehouse/BRONZE/anp/")
+    delta_table.optimize().executeCompaction()
 
 
 if __name__ == "__main__":
