@@ -35,7 +35,7 @@ def transform_tables_to_delta():
     # Executa otimização da compactação par melhorar velocidade de leitura das tabelas
     from delta.tables import DeltaTable
     delta_table = DeltaTable.forPath(spark, "s3a://etl-data-lakehouse/BRONZE/anp/")
-    delta_table.optimize().executeCompaction()
+    delta_table.vaccuum(480)
 
 
 if __name__ == "__main__":
