@@ -30,8 +30,6 @@ def transform_tables_to_delta():
     for column in df.columns:
         df = df.withColumnRenamed(column, column.replace("-", "").replace("  ", " ").replace(" ", "_").lower())
 
-    print(df.limit(5).show())
-
     # Salva dados cadastrais dos postos na camada silver
     (
         df.write
