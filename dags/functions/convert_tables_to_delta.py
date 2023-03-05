@@ -27,8 +27,14 @@ def delete_files_on_s3(bucket_name: str = "etl-data-lakehouse", path: str = "BRO
 def transform_tables_to_delta(year: str = 2022):
     print(f"Reading data from year: {year}")
     spark = create_spark_session()
-    df = spark.read.csv(f"s3a://etl-data-lakehouse/LANDING_ZONE/anp/*ca-{year}*.csv", header=True, sep=";",
-                        inferSchema=True)
+    try:
+        df = spark.read.csv(f"s3a://etl-data-lakehouse/LANDING_ZONE/anp/*ca-{year}*.csv", header=True, sep=";",
+                            inferSchema=True)
+    except Exception as e:
+        if "Path does not exist" in e.stackTrace:
+            pass
+        else:
+            raise e
 
     for column in df.columns:
         df = df.withColumnRenamed(column, column.replace("-", "").replace("  ", " ").replace(" ", "_").lower())
@@ -37,7 +43,7 @@ def transform_tables_to_delta(year: str = 2022):
     (
         df.write
         .format("delta")
-        .mode("overwrite")
+        .mode("append")
         .option("header", "true")
         .save("s3a://etl-data-lakehouse/BRONZE/anp/")
     )
