@@ -32,7 +32,7 @@ def transform_tables_to_delta(year: str = 2022):
                             inferSchema=True)
     except Exception as e:
         if "Path does not exist" in e.stackTrace:
-            pass
+            return
         else:
             raise e
 
