@@ -74,7 +74,7 @@ with DAG(
         task_id="delete_files_on_bronze",
         python_callable=delete_files_on_s3,
         op_kwargs={
-            "bucket_name": "etl-data-lakehouse",
+            "bucket_name": "etl-lakehouse",
             "path": "BRONZE/anp/",
             "conn_id": "aws"
         }
