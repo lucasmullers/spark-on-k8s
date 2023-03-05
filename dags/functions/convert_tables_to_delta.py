@@ -44,4 +44,5 @@ def transform_tables_to_delta(year: str = 2022):
 
 
 if __name__ == "__main__":
-    transform_tables_to_delta()
+    from sys import argv
+    transform_tables_to_delta(argv[1])
