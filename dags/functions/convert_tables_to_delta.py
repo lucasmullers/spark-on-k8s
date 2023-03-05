@@ -16,9 +16,18 @@ def create_spark_session(connection_id: str = "aws"):
     return spark
 
 
-def transform_tables_to_delta():
+def delete_files_on_s3(bucket_name: str = "etl-data-lakehouse", path: str = "BRONZE/anp/", conn_id: str = "aws"):
+    from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+
+    s3_hook = S3Hook(conn_id)
+    s3_hook.delete_objects(bucket_name=bucket_name, keys=path)
+    print(f"DELETING FILES FROM PATH: {path}")
+
+
+def transform_tables_to_delta(year: str = 2022):
     spark = create_spark_session()
-    df = spark.read.csv("s3a://etl-data-lakehouse/LANDING_ZONE/anp/*.csv", header=True, sep=";", inferSchema=True)
+    df = spark.read.csv("s3a://etl-data-lakehouse/LANDING_ZONE/anp/*ca-{year}*.csv", header=True, sep=";",
+                        inferSchema=True)
 
     for column in df.columns:
         df = df.withColumnRenamed(column, column.replace("-", "").replace("  ", " ").replace(" ", "_").lower())

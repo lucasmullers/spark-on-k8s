@@ -4,8 +4,11 @@ from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
 from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
+from airflow.operator.python import PythonOperator
 from airflow.models import taskinstance
 from airflow.utils.db import provide_session
+
+from functions.convert_tables_to_delta import delete_files_on_s3
 
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
@@ -35,6 +38,13 @@ def clear_upstream_task(context):
     clear_tasks(tasks_to_clear, dag=context["dag"])
 
 
+def calculate_years_in_range(start_year: int, end_year: int):
+    years = []
+    for year in range(start_year, end_year + 1):
+        years.append(year)
+
+    return years
+
 with DAG(
     dag_id=DAG_ID,
     default_args=DEFAULT_ARGS,
@@ -60,20 +70,34 @@ with DAG(
 
     finish = EmptyOperator(task_id="finish", trigger_rule="all_success")
 
-    anp_bronze_layer = SparkKubernetesOperator(
-        task_id='copy_anp_data_to_bronze_layer',
-        namespace='processing',
-        application_file='spark-jobs/elt-anp-bronze.yaml',
-        kubernetes_conn_id='kubernetes_in_cluster'
+    delete_files_on_s3 = PythonOperator(
+        task_id="delete_files_on_bronze",
+        python_callable=delete_files_on_s3,
+        op_kwargs={
+            "bucket_name": "etl-data-lakehouse",
+            "path": "BRONZE/anp/",
+            "conn_id": "aws"
+        }
     )
 
-    monitor_task = SparkKubernetesSensor(
-        task_id='monitor_anp_task',
-        namespace='processing',
-        application_name="{{ task_instance.xcom_pull(task_ids='copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
-        kubernetes_conn_id='kubernetes_in_cluster',
-        attach_log=True,
-        on_retry_callback=clear_upstream_task,
-    )
+    for year in calculate_years_in_range(2004, datetime.now().year):
+        anp_bronze_layer = SparkKubernetesOperator(
+            task_id='copy_anp_data_to_bronze_layer_{}'.format(year),
+            namespace='processing',
+            application_file='spark-jobs/elt-anp-bronze.yaml',
+            kubernetes_conn_id='kubernetes_in_cluster',
+            params={
+                "year": year
+            }
+        )
 
-    _ = start >> anp_bronze_layer >> monitor_task >> finish
+        monitor_task = SparkKubernetesSensor(
+            task_id='monitor_anp_task_{}'.format(year),
+            namespace='processing',
+            application_name="{{ task_instance.xcom_pull(task_ids='copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
+            kubernetes_conn_id='kubernetes_in_cluster',
+            attach_log=True,
+            on_retry_callback=clear_upstream_task,
+        )
+
+        _ = start >> delete_files_on_s3 >> anp_bronze_layer >> monitor_task >> finish

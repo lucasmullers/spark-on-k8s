@@ -1,7 +1,7 @@
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: elt-anp-bronze
+  name: "elt-anp-bronze-{{ ds }}-{{ task_instance.try_number }}"
   namespace: processing
 spec:
   type: Python
@@ -9,6 +9,9 @@ spec:
   image: "lucasmullers/spark-k8s:v3.3.2"
   imagePullPolicy: Always
   mainApplicationFile: "s3a://spark-k8s-scripts/convert_tables_to_delta.py"
+  arguments:
+    - {{ params.year }}
+    - kafka:9092
   sparkConf:
     "spark.hadoop.fs.s3.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
     "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
