@@ -25,8 +25,9 @@ def delete_files_on_s3(bucket_name: str = "etl-data-lakehouse", path: str = "BRO
 
 
 def transform_tables_to_delta(year: str = 2022):
+    print(f"Reading data from year: {year}")
     spark = create_spark_session()
-    df = spark.read.csv("s3a://etl-data-lakehouse/LANDING_ZONE/anp/*ca-{year}*.csv", header=True, sep=";",
+    df = spark.read.csv(f"s3a://etl-data-lakehouse/LANDING_ZONE/anp/*ca-{year}*.csv", header=True, sep=";",
                         inferSchema=True)
 
     for column in df.columns:
