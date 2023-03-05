@@ -20,7 +20,7 @@ def delete_files_on_s3(bucket_name: str = "etl-data-lakehouse", path: str = "BRO
     from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
     s3_hook = S3Hook(conn_id)
-    s3_hook.delete_objects(bucket_name=bucket_name, keys=path)
+    s3_hook.delete_objects(bucket=bucket_name, keys=path)
     print(f"DELETING FILES FROM PATH: {path}")
 
 
