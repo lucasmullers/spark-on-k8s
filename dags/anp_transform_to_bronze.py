@@ -4,7 +4,7 @@ from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
 from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
-from airflow.operator.python import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.models import taskinstance
 from airflow.utils.db import provide_session
 
