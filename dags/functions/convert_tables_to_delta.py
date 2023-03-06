@@ -66,7 +66,7 @@ def transform_tables_to_delta(year: str = 2022):
     df = (
         # Converte colunas para o tipo correto
         df.withColumn("data_da_coleta", to_date("data_da_coleta", "dd/MM/yyyy"))
-        .withColumn("cnpj", trim(regexp_replace("cnpj", r"[.\-/]", "")))
+        .withColumn("cnpj_da_revenda", trim(regexp_replace("cnpj_da_revenda", r"[.\-/]", "")))
         .withColumn("cep", regexp_replace("cep", "-", ""))
         .withColumn("valor_de_compra", regexp_replace("valor_de_compra", ",", ".").cast("float"))
         .withColumn("valor_de_venda", regexp_replace("valor_de_venda", ",", ".").cast("float"))
