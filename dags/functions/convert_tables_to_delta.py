@@ -16,11 +16,23 @@ def create_spark_session(connection_id: str = "aws"):
     return spark
 
 
+def chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
 def delete_files_on_s3(bucket_name: str = "etl-lakehouse", path: str = "BRONZE/anp/", conn_id: str = "aws"):
     from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
     s3_hook = S3Hook(conn_id)
-    s3_hook.delete_objects(bucket=bucket_name, keys=path)
+
+    object_keys = s3_hook.list_keys(bucket_name=bucket_name, prefix=path)
+
+    if object_keys:
+        batches = chunks(object_keys, 1000)
+        for batch in batches:
+            s3_hook.delete_objects(bucket=bucket_name, keys=batch)
+
     print(f"DELETING FILES FROM PATH: {path}")
 
 
