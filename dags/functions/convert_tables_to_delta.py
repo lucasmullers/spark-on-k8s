@@ -42,6 +42,7 @@ def transform_tables_to_delta(year: str = 2022):
         StructField("Bairro", StringType(), True),
         StructField("Cep", StringType(), True),
         StructField("Produto", StringType(), True),
+        StructField("Data da Coleta", StringType(), True),
         StructField("Valor de Venda", StringType(), True),
         StructField("Valor de Compra", StringType(), True),
         StructField("Unidade de Medida", StringType(), True),
