@@ -118,9 +118,9 @@ with DAG(
             op_kwargs={
                 "task_id": 'copy_anp_data_to_bronze_layer_{}'.format(year),
                 "application_file": 'spark-jobs/elt-anp-bronze.yaml',
-                "params": {"year": year}
-            },
-            dag=dag
+                "params": {"year": year},
+                "dag": dag
+            }
         )
 
         _ = start >> delete_files_on_s3 >> tasks >> finish
