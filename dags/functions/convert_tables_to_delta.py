@@ -70,7 +70,7 @@ def transform_tables_to_delta(year: str = 2022):
         .withColumn("cep", regexp_replace("cep", "-", ""))
         .withColumn("valor_de_compra", regexp_replace("valor_de_compra", ",", ".").cast("float"))
         .withColumn("valor_de_venda", regexp_replace("valor_de_venda", ",", ".").cast("float"))
-        .filter(col("data_coleta").isNotNull())
+        .filter(col("data_da_coleta").isNotNull())
     )
 
     (
