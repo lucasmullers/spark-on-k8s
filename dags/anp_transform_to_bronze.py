@@ -49,16 +49,18 @@ def calculate_years_in_range(start_year: int, end_year: int):
 def RunAndMonitorKubernetesJob(
         task_id: str,
         application_file: str,
+        dag,
         namespace: str = "processing",
         kubernetes_conn_id: str = "kubernetes_in_cluster",
-        params: dict = {}
+        params: dict = {},
 ):
     job = SparkKubernetesOperator(
         task_id="execute_{}".format(task_id),
         namespace=namespace,
         application_file=application_file,
         kubernetes_conn_id=kubernetes_conn_id,
-        params=params
+        params=params,
+        dag=dag,
     )
 
     monitor = SparkKubernetesSensor(
@@ -68,6 +70,7 @@ def RunAndMonitorKubernetesJob(
         kubernetes_conn_id=kubernetes_conn_id,
         attach_log=True,
         on_retry_callback=clear_upstream_task,
+        dag=dag,
     )
 
     job >> monitor
@@ -116,7 +119,8 @@ with DAG(
                 "task_id": 'copy_anp_data_to_bronze_layer_{}'.format(year),
                 "application_file": 'spark-jobs/elt-anp-bronze.yaml',
                 "params": {"year": year}
-            }
+            },
+            dag=dag
         )
 
         _ = start >> delete_files_on_s3 >> tasks >> finish
