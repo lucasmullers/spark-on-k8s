@@ -36,9 +36,9 @@ def delete_files_on_s3(bucket_name: str = "etl-lakehouse", path: str = "BRONZE/a
     print(f"DELETING FILES FROM PATH: {path}")
 
 
-def optimize_delta_tables(df: DataFrame, path: str):
+def optimize_delta_tables(spark: SparkSession, path: str):
     from delta.tables import DeltaTable
-    delta_table = DeltaTable.forPath(df, path)
+    delta_table = DeltaTable.forPath(spark, path)
     delta_table.optimize().executeCompaction()
 
 
@@ -97,7 +97,7 @@ def transform_tables_to_delta(year: str = 2022):
         .option("header", "true")
         .save("s3a://etl-lakehouse/BRONZE/anp/")
     )
-    optimize_delta_tables(df, "s3a://etl-lakehouse/BRONZE/anp/")
+    optimize_delta_tables(spark, "s3a://etl-lakehouse/BRONZE/anp/")
 
 
 if __name__ == "__main__":
