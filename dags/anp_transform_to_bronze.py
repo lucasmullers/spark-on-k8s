@@ -45,6 +45,34 @@ def calculate_years_in_range(start_year: int, end_year: int):
 
     return years
 
+
+def RunAndMonitorKubernetesJob(
+        task_id: str,
+        application_file: str,
+        namespace: str = "processing",
+        kubernetes_conn_id: str = "kubernetes_in_cluster",
+        params: dict = {}
+):
+    job = SparkKubernetesOperator(
+        task_id="execute_{}".format(task_id),
+        namespace=namespace,
+        application_file=application_file,
+        kubernetes_conn_id=kubernetes_conn_id,
+        params=params
+    )
+
+    monitor = SparkKubernetesSensor(
+        task_id='monitor_{}'.format(task_id),
+        namespace='processing',
+        application_name="{{ task_instance.xcom_pull(task_ids='" + task_id + "')['metadata']['name'] }}",
+        kubernetes_conn_id=kubernetes_conn_id,
+        attach_log=True,
+        on_retry_callback=clear_upstream_task,
+    )
+
+    job >> monitor
+
+
 with DAG(
     dag_id=DAG_ID,
     default_args=DEFAULT_ARGS,
@@ -81,23 +109,14 @@ with DAG(
     )
 
     for year in calculate_years_in_range(2004, datetime.now().year):
-        anp_bronze_layer = SparkKubernetesOperator(
-            task_id='copy_anp_data_to_bronze_layer_{}'.format(year),
-            namespace='processing',
-            application_file='spark-jobs/elt-anp-bronze.yaml',
-            kubernetes_conn_id='kubernetes_in_cluster',
-            params={
-                "year": year
+        tasks = PythonOperator(
+            task_id="copy_anp_data_to_bronze_layer_{}".format(year),
+            python_callable=RunAndMonitorKubernetesJob,
+            op_kwargs={
+                "task_id": 'copy_anp_data_to_bronze_layer_{}'.format(year),
+                "application_file": 'spark-jobs/elt-anp-bronze.yaml',
+                "params": {"year": year}
             }
         )
 
-        monitor_task = SparkKubernetesSensor(
-            task_id='monitor_anp_task_{}'.format(year),
-            namespace='processing',
-            application_name="{{ task_instance.xcom_pull(task_ids='copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
-            kubernetes_conn_id='kubernetes_in_cluster',
-            attach_log=True,
-            on_retry_callback=clear_upstream_task,
-        )
-
-        _ = start >> delete_files_on_s3 >> anp_bronze_layer >> monitor_task >> finish
+        _ = start >> delete_files_on_s3 >> tasks >> finish
