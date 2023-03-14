@@ -42,7 +42,7 @@ def optimize_delta_tables(spark: SparkSession, path: str):
     delta_table.optimize().executeCompaction()
 
 
-def transform_tables_to_delta(year: str = 2022):
+def transform_tables_to_delta():
     from pyspark.sql.functions import col, to_date, trim, regexp_replace
     from pyspark.sql.types import StructType, StructField, StringType
 
@@ -65,11 +65,9 @@ def transform_tables_to_delta(year: str = 2022):
         StructField("Bandeira", StringType(), True),
     ])
 
-    print(f"Reading data from year: {year}")
     spark = create_spark_session()
     try:
-        df = spark.read.csv(f"s3a://etl-lakehouse/LANDING_ZONE/anp/*ca-{year}*.csv", header=True, sep=";",
-                            schema=schema)
+        df = spark.read.csv("s3a://etl-lakehouse/LANDING_ZONE/anp/*.csv", header=True, sep=";", schema=schema)
     except Exception as e:
         if "Path does not exist" in e.stackTrace:
             return
@@ -101,5 +99,4 @@ def transform_tables_to_delta(year: str = 2022):
 
 
 if __name__ == "__main__":
-    from sys import argv
-    transform_tables_to_delta(argv[1])
+    transform_tables_to_delta()
