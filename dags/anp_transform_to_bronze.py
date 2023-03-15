@@ -4,12 +4,8 @@ from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
 from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
-# from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
-from airflow.operators.python import PythonOperator
 from airflow.models import taskinstance
 from airflow.utils.db import provide_session
-
-from functions.convert_tables_to_delta import delete_files_on_s3
 
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
