@@ -105,8 +105,10 @@ with DAG(
         java_class="org.apache.spark.examples.SparkPi",
         conf={
             "spark.kubernetes.authenticate.driver.serviceAccountName": "spark-operator-spark",
-            "spark.kubernetes.container.image": "apache/spark:3.3.2"
-        }
+            "spark.kubernetes.container.image": "apache/spark:3.3.2",
+            "spark.executor.instances": "2"
+        },
+        executor_memory="512m"
 
     )
 
