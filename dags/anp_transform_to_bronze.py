@@ -2,10 +2,10 @@ from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
-from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
-from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
+# from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
+# from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
-from airflow.operators.python import PythonOperator
+# from airflow.operators.python import PythonOperator
 from airflow.models import taskinstance
 from airflow.utils.db import provide_session
 
@@ -102,7 +102,12 @@ with DAG(
     submit_job = SparkSubmitOperator(
         task_id="submit_job",
         application="/opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar",
-        java_class="org.apache.spark.examples.SparkPi"
+        java_class="org.apache.spark.examples.SparkPi",
+        conf={
+            "spark.kubernetes.authenticate.driver.serviceAccountName": "spark-operator-spark",
+            "spark.kubernetes.namespace": "processing",
+            "spark.kubernetes.container.image": "apache/spark"
+        }
 
     )
 
