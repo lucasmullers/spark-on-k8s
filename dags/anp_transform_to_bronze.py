@@ -62,13 +62,13 @@ with DAG(
 
     finish = EmptyOperator(task_id="finish", trigger_rule="all_success")
 
-    run_job = SparkKubernetesOperator(
-        task_id="execute_copy_anp_data_to_bronze_layer",
-        namespace="processing",
-        application_file="spark-jobs/elt-anp-bronze.yaml",
-        kubernetes_conn_id="kubernetes_in_cluster",
-        dag=dag,
-    )
+    # run_job = SparkKubernetesOperator(
+    #     task_id="execute_copy_anp_data_to_bronze_layer",
+    #     namespace="processing",
+    #     application_file="spark-jobs/elt-anp-bronze.yaml",
+    #     kubernetes_conn_id="kubernetes_in_cluster",
+    #     dag=dag,
+    # )
 
     # spark_submit = SparkSubmitOperator(
     #     task_id="execute_copy_anp_data_to_bronze_layer",
@@ -100,18 +100,18 @@ with DAG(
     # )
 
     submit_job = SparkSubmitOperator(
-        application="${SPARK_HOME}/examples/src/main/python/pi.py", task_id="submit_job"
+        application="local:///opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar", task_id="submit_job"
 
     )
 
-    monitor = SparkKubernetesSensor(
-        task_id='monitor_copy_anp_data_to_bronze_layer',
-        namespace='processing',
-        application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
-        kubernetes_conn_id="kubernetes_in_cluster",
-        attach_log=True,
-        on_retry_callback=clear_upstream_task,
-        dag=dag,
-    )
+    # monitor = SparkKubernetesSensor(
+    #     task_id='monitor_copy_anp_data_to_bronze_layer',
+    #     namespace='processing',
+    #     application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
+    #     kubernetes_conn_id="kubernetes_in_cluster",
+    #     attach_log=True,
+    #     on_retry_callback=clear_upstream_task,
+    #     dag=dag,
+    # )
 
     _ = start >> submit_job >> finish
