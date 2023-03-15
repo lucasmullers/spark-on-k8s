@@ -46,7 +46,7 @@ with DAG(
     schedule_interval="0 9 1,15 * *",
     catchup=True,
     dagrun_timeout=timedelta(minutes=45),
-    tags=["ANP": "BRONZE"],
+    tags=["ANP", "BRONZE"],
     doc_md="DAG to Transforma ANP DATA from Landing Zone to Bronze Layer",
 ) as dag:
 
