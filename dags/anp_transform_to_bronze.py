@@ -14,11 +14,11 @@ from functions.convert_tables_to_delta import delete_files_on_s3
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
 DEFAULT_ARGS = {
-    ""owner"": "Lucas Müller",
-    ""depends_on_past"": False,
-    ""start_date"": datetime(2023, 1, 1),
-    ""retries"": 0,
-    ""retry_delay"": timedelta(seconds=30)
+    "owner": "Lucas Müller",
+    "depends_on_past": False,
+    "start_date": datetime(2023, 1, 1),
+    "retries": 0,
+    "retry_delay": timedelta(seconds=30)
 }
 
 
