@@ -9,8 +9,6 @@ from airflow.operators.python import PythonOperator
 from airflow.models import taskinstance
 from airflow.utils.db import provide_session
 
-from functions.convert_tables_to_delta import delete_files_on_s3
-
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
 DEFAULT_ARGS = {
