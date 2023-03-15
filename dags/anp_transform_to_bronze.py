@@ -8,6 +8,7 @@ from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOpe
 from airflow.operators.python import PythonOperator
 from airflow.models import taskinstance
 from airflow.utils.db import provide_session
+from airflow.models import Variable
 
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
@@ -45,7 +46,7 @@ with DAG(
     schedule_interval="0 9 1,15 * *",
     catchup=True,
     dagrun_timeout=timedelta(minutes=45),
-    tags=["ANP", "BRONZE"],
+    tags=["ANP": "BRONZE"],
     doc_md="DAG to Transforma ANP DATA from Landing Zone to Bronze Layer",
 ) as dag:
 
@@ -101,15 +102,20 @@ with DAG(
 
     submit_job = SparkSubmitOperator(
         task_id="submit_job",
-        application="local:///opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar",
-        java_class="org.apache.spark.examples.SparkPi",
+        application="./dags/functions/convert_tables_to_delta.py",
         conf={
             "spark.kubernetes.authenticate.driver.serviceAccountName": "spark-operator-spark",
             "spark.kubernetes.container.image": "apache/spark:3.3.2",
-            "spark.executor.instances": "2"
+            "spark.executor.instances": "2",
+            "fs.s3a.access.key": Variable.get("access_key"),
+            "fs.s3a.secret.key": Variable.get("secret_key"),
+            "com.amazonaws.services.s3.enableV4": "true",
+            "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+            "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+            "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
+            "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
         },
         executor_memory="512m"
-
     )
 
     # monitor = SparkKubernetesSensor(

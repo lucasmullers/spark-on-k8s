@@ -1,17 +1,20 @@
-from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import SparkSession
+from pyspark import SparkContext, SparkConf
 
 
 def create_spark_session(connection_id: str = "aws"):
-    spark = (
-        SparkSession
-        .builder
-        .config("com.amazonaws.services.s3.enableV4", "true")
-        .config("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
-        .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
-        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-        .getOrCreate()
-    )
+    spark = SparkSession(SparkContext(conf=SparkConf()).getOrCreate())
+
+    # spark = (
+    #     SparkSession
+    #     .builder
+    #     .config("com.amazonaws.services.s3.enableV4", "true")
+    #     .config("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+    #     .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    #     .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    #     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    #     .getOrCreate()
+    # )
 
     return spark
 
@@ -61,6 +64,8 @@ def transform_tables_to_delta():
 
     for column in df.columns:
         df = df.withColumnRenamed(column, column.replace("-", "").replace("  ", " ").replace(" ", "_").lower())
+
+    print(df.limit(10).show())
 
     df = (
         # Converte colunas para o tipo correto
