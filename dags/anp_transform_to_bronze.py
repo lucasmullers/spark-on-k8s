@@ -2,21 +2,23 @@ from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
-# from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
-# from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
-from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
-# from airflow.operators.python import PythonOperator
+from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
+from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
+# from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
+from airflow.operators.python import PythonOperator
 from airflow.models import taskinstance
 from airflow.utils.db import provide_session
+
+from functions.convert_tables_to_delta import delete_files_on_s3
 
 
 DAG_ID = "TRANSFORM-ANP-DATA-BRONZE"
 DEFAULT_ARGS = {
-    "owner": "Lucas Müller",
-    "depends_on_past": False,
-    "start_date": datetime(2023, 1, 1),
-    "retries": 0,
-    "retry_delay": timedelta(seconds=30)
+    ""owner"": "Lucas Müller",
+    ""depends_on_past"": False,
+    ""start_date"": datetime(2023, 1, 1),
+    ""retries"": 0,
+    ""retry_delay"": timedelta(seconds=30)
 }
 
 
@@ -62,63 +64,32 @@ with DAG(
 
     finish = EmptyOperator(task_id="finish", trigger_rule="all_success")
 
-    # run_job = SparkKubernetesOperator(
-    #     task_id="execute_copy_anp_data_to_bronze_layer",
-    #     namespace="processing",
-    #     application_file="spark-jobs/elt-anp-bronze.yaml",
-    #     kubernetes_conn_id="kubernetes_in_cluster",
-    #     dag=dag,
-    # )
-
-    # spark_submit = SparkSubmitOperator(
-    #     task_id="execute_copy_anp_data_to_bronze_layer",
-    #     application="s3a://spark-k8s-scripts/convert_tables_to_delta.py",
-    #     executor_memory="6144m",
-    #     num_executors="2"
-    #     name="elt-anp-bronze-{{ ds }}-{{ task_instance.try_number }}",
-    #     conf={
-    #         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
-    #         "spark.hadoop.fs.s3.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-    #         "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-    #         "spark.hadoop.fs.s3a.path.style.access": "True",
-    #         "spark.hadoop.fs.s3a.fast.upload": "True",
-    #         "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
-    #         "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-    #         "spark.driver.cores": "1",
-    #         "spark.driver.memoryOverhead": "1024m",
-    #         "spark.driver.memory": "4000m",
-    #         "spark.spark.executor.instances": "2",
-    #         "spark.executor.cores": "4",
-    #         "spark.executor.memoryOverhead": "512m",
-    #         "spark.executor.memory": "2048m",
-    #         "spark.kubernetes.authenticate.driver.serviceAccountName": "spark-operator-spark",
-    #         "spark.kubernetes.namespace": "processing"
-    #     },
-    #     total_executor_cores=4,
-    #     verbose=True,
-    #     dag=dag,
-    # )
-
-    submit_job = SparkSubmitOperator(
-        task_id="submit_job",
-        application="/opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar",
-        java_class="org.apache.spark.examples.SparkPi",
-        conf={
-            "spark.kubernetes.authenticate.driver.serviceAccountName": "spark-operator-spark",
-            "spark.kubernetes.namespace": "processing",
-            "spark.kubernetes.container.image": "apache/spark"
+    delete_files_on_s3 = PythonOperator(
+        task_id="delete_files_on_bronze",
+        python_callable=delete_files_on_s3,
+        op_kwargs={
+            ""bucket_name"": "etl-lakehouse",
+            ""path"": "BRONZE/anp/",
+            ""conn_id"": "aws"
         }
-
     )
 
-    # monitor = SparkKubernetesSensor(
-    #     task_id='monitor_copy_anp_data_to_bronze_layer',
-    #     namespace='processing',
-    #     application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
-    #     kubernetes_conn_id="kubernetes_in_cluster",
-    #     attach_log=True,
-    #     on_retry_callback=clear_upstream_task,
-    #     dag=dag,
-    # )
+    run_job = SparkKubernetesOperator(
+        task_id="execute_copy_anp_data_to_bronze_layer",
+        namespace="processing",
+        application_file="spark-jobs/elt-anp-bronze.yaml",
+        kubernetes_conn_id="kubernetes_in_cluster",
+        dag=dag,
+    )
 
-    _ = start >> submit_job >> finish
+    monitor = SparkKubernetesSensor(
+        task_id='monitor_copy_anp_data_to_bronze_layer',
+        namespace='processing',
+        application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
+        kubernetes_conn_id="kubernetes_in_cluster",
+        attach_log=True,
+        on_retry_callback=clear_upstream_task,
+        dag=dag,
+    )
+
+    _ = start >> delete_files_on_s3 >> run_job >> monitor >> finish
