@@ -68,6 +68,14 @@ with DAG(
         dag=dag,
     )
 
+    run_job_1 = SparkKubernetesOperator(
+        task_id="execute_copy_anp_data_to_bronze_layer_1",
+        namespace="processing",
+        application_file="spark-jobs/elt-anp-bronze.yaml",
+        kubernetes_conn_id="kubernetes_in_cluster",
+        dag=dag,
+    )
+
     monitor = SparkKubernetesSensor(
         task_id='monitor_copy_anp_data_to_bronze_layer',
         namespace='processing',
@@ -78,4 +86,4 @@ with DAG(
         dag=dag,
     )
 
-    _ = start >> run_job >> monitor >> finish
+    _ = start >> [run_job, run_job_1] >> monitor >> finish
