@@ -77,6 +77,15 @@ with DAG(
     )
 
     monitor = SparkKubernetesSensor(
+        task_id='monitor_copy_anp_data_to_bronze_layer_1',
+        namespace='processing',
+        application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
+        kubernetes_conn_id="kubernetes_in_cluster",
+        attach_log=True,
+        on_retry_callback=clear_upstream_task,
+        dag=dag,
+    )
+    monitor_1 = SparkKubernetesSensor(
         task_id='monitor_copy_anp_data_to_bronze_layer',
         namespace='processing',
         application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
@@ -86,4 +95,5 @@ with DAG(
         dag=dag,
     )
 
-    _ = start >> [run_job, run_job_1] >> monitor >> finish
+    _ = start >> run_job >> monitor >> finish
+    _ = start >> run_job_1 >> monitor_1 >> finish
