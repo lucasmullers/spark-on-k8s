@@ -64,16 +64,6 @@ with DAG(
 
     finish = EmptyOperator(task_id="finish", trigger_rule="all_success")
 
-    delete_files_on_s3 = PythonOperator(
-        task_id="delete_files_on_bronze",
-        python_callable=delete_files_on_s3,
-        op_kwargs={
-            "bucket_name": "etl-lakehouse",
-            "path": "BRONZE/anp/",
-            "conn_id": "aws"
-        }
-    )
-
     run_job = SparkKubernetesOperator(
         task_id="execute_copy_anp_data_to_bronze_layer",
         namespace="processing",
