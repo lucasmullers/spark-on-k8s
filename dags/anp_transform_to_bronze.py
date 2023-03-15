@@ -102,7 +102,11 @@ with DAG(
     submit_job = SparkSubmitOperator(
         task_id="submit_job",
         application="local:///opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar",
-        java_class="org.apache.spark.examples.SparkPi"
+        java_class="org.apache.spark.examples.SparkPi",
+        conf={
+            "spark.kubernetes.authenticate.driver.serviceAccountName": "spark-operator-spark",
+            "spark.kubernetes.container.image": "apache/spark:3.3.2"
+        }
 
     )
 
