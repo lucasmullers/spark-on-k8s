@@ -78,4 +78,4 @@ with DAG(
         dag=dag,
     )
 
-    _ = start >> delete_files_on_s3 >> run_job >> monitor >> finish
+    _ = start >> run_job >> monitor >> finish
