@@ -71,7 +71,7 @@ with DAG(
     monitor_cadastro_posto = SparkKubernetesSensor(
         task_id='monitor_create_silver_cadastro_posto',
         namespace='processing',
-        application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
+        application_name="{{ task_instance.xcom_pull(task_ids='create_silver_cadastro_posto')['metadata']['name'] }}",
         kubernetes_conn_id="kubernetes_in_cluster",
         attach_log=True,
         on_retry_callback=clear_upstream_task,
@@ -81,7 +81,7 @@ with DAG(
     job_informacao_venda = SparkKubernetesOperator(
         task_id="create_silver_informacao_venda",
         namespace="processing",
-        application_file="spark-jobs/silver_informacao_venda",
+        application_file="spark-jobs/silver_informacao_venda.yaml",
         kubernetes_conn_id="kubernetes_in_cluster",
         dag=dag,
     )
@@ -89,7 +89,7 @@ with DAG(
     monitor_informacao_venda = SparkKubernetesSensor(
         task_id='monitor_create_silver_informacao_venda',
         namespace='processing',
-        application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
+        application_name="{{ task_instance.xcom_pull(task_ids='create_silver_informacao_venda')['metadata']['name'] }}",
         kubernetes_conn_id="kubernetes_in_cluster",
         attach_log=True,
         on_retry_callback=clear_upstream_task,
