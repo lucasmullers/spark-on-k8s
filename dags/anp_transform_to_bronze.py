@@ -99,5 +99,4 @@ with DAG(
             dag=dag,
         )
 
-    _ = start >> run_job >> monitor >> finish
-    _ = start >> run_job_1 >> monitor_1 >> finish
+    _ = start >> [tg1, tg2] >> finish
