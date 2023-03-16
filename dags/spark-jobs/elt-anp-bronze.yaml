@@ -3,14 +3,14 @@ kind: SparkApplication
 metadata:
   name: "elt-anp-bronze-{{ ds }}-{{ task_instance.try_number }}"
   namespace: processing
-status:
-  state: "COMPLETED"
 spec:
   type: Python
   mode: cluster
   image: "lucasmullers/spark-k8s:v3.3.2"
   imagePullPolicy: Always
   mainApplicationFile: "s3a://spark-k8s-scripts/convert_tables_to_delta.py"
+  status:
+    state: "COMPLETED"
   sparkConf:
     spark.serializer: org.apache.spark.serializer.KryoSerializer
     spark.hadoop.fs.s3.impl: "org.apache.hadoop.fs.s3a.S3AFileSystem"
