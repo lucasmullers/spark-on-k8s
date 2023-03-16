@@ -27,7 +27,7 @@ def create_informacao_venda_table():
     from pyspark.sql.functions import col, regexp_replace, to_date, trim
 
     spark = create_spark_session()
-    df = spark.read.format("delta").load("s3a://etl-data-lakehouse/BRONZE/anp/", header=True)
+    df = spark.read.format("delta").load("s3a://etl-lakehouse/BRONZE/anp/", header=True)
 
     informacao_venda_df = (
         # Seleciona as colunas de interesse e renomeia
@@ -58,11 +58,11 @@ def create_informacao_venda_table():
         .format("delta")
         .mode("overwrite")
         .option("header", "true")
-        .save("s3a://etl-data-lakehouse/SILVER/informacao_venda/")
+        .save("s3a://etl-lakehouse/SILVER/informacao_venda/")
     )
 
     # Executa otimização da compactação par melhorar velocidade de leitura das tabelas
-    optimize_compaction_and_run_vacuum(spark, path="s3a://etl-data-lakehouse/SILVER/informacao_venda/")
+    optimize_compaction_and_run_vacuum(spark, path="s3a://etl-lakehouse/SILVER/informacao_venda/")
 
 
 if __name__ == "__main__":

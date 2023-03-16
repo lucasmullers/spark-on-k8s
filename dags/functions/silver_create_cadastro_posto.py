@@ -27,7 +27,7 @@ def create_cadastro_posto_table():
     from pyspark.sql.functions import col, when, regexp_replace, trim
 
     spark = create_spark_session()
-    df = spark.read.format("delta").load("s3a://etl-data-lakehouse/BRONZE/anp/", header=True)
+    df = spark.read.format("delta").load("s3a://etl-lakehouse/BRONZE/anp/", header=True)
 
     cadastro_posto_df = (
         # Seleciona as colunas de interesse e renomeia
@@ -66,11 +66,11 @@ def create_cadastro_posto_table():
         .format("delta")
         .mode("overwrite")
         .option("header", "true")
-        .save("s3a://etl-data-lakehouse/SILVER/cadastro_posto/")
+        .save("s3a://etl-lakehouse/SILVER/cadastro_posto/")
     )
 
     # Executa otimização da compactação par melhorar velocidade de leitura das tabelas
-    optimize_compaction_and_run_vacuum(spark, path="s3a://etl-data-lakehouse/SILVER/cadastro_posto/")
+    optimize_compaction_and_run_vacuum(spark, path="s3a://etl-lakehouse/SILVER/cadastro_posto/")
 
 
 if __name__ == "__main__":
