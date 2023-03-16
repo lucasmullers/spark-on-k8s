@@ -61,7 +61,7 @@ with DAG(
     finish = EmptyOperator(task_id="finish", trigger_rule="all_success")
 
     job_cadastro_posto = SparkKubernetesOperator(
-        task_id="execute_copy_anp_data_to_bronze_layer",
+        task_id="create_silver_cadastro_posto",
         namespace="processing",
         application_file="spark-jobs/elt-anp-silver-cadastro-postos.yaml",
         kubernetes_conn_id="kubernetes_in_cluster",
@@ -69,7 +69,7 @@ with DAG(
     )
 
     monitor_cadastro_posto = SparkKubernetesSensor(
-        task_id='monitor_copy_anp_data_to_bronze_layer_1',
+        task_id='monitor_create_silver_cadastro_posto',
         namespace='processing',
         application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
         kubernetes_conn_id="kubernetes_in_cluster",
@@ -79,7 +79,7 @@ with DAG(
     )
 
     job_informacao_venda = SparkKubernetesOperator(
-        task_id="execute_copy_anp_data_to_bronze_layer",
+        task_id="create_silver_informacao_venda",
         namespace="processing",
         application_file="spark-jobs/silver_informacao_venda",
         kubernetes_conn_id="kubernetes_in_cluster",
@@ -87,7 +87,7 @@ with DAG(
     )
 
     monitor_informacao_venda = SparkKubernetesSensor(
-        task_id='monitor_copy_anp_data_to_bronze_layer_1',
+        task_id='monitor_create_silver_informacao_venda',
         namespace='processing',
         application_name="{{ task_instance.xcom_pull(task_ids='execute_copy_anp_data_to_bronze_layer')['metadata']['name'] }}",
         kubernetes_conn_id="kubernetes_in_cluster",
