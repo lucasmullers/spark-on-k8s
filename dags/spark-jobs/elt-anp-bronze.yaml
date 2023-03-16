@@ -3,6 +3,8 @@ kind: SparkApplication
 metadata:
   name: "elt-anp-bronze-{{ ds }}-{{ task_instance.try_number }}"
   namespace: processing
+status:
+  state: "COMPLETED"
 spec:
   type: Python
   mode: cluster
