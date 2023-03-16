@@ -1,0 +1,43 @@
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: "elt-anp-silver-{{ ds }}-{{ task_instance.try_number }}"
+  namespace: processing
+spec:
+  type: Python
+  mode: cluster
+  image: "lucasmullers/spark-k8s:v3.3.2"
+  imagePullPolicy: Always
+  mainApplicationFile: "s3a://spark-k8s-scripts/silver_informacao_venda.py"
+  sparkConf:
+    spark.serializer: org.apache.spark.serializer.KryoSerializer
+    spark.hadoop.fs.s3.impl: "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    spark.hadoop.fs.s3a.impl: "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    spark.hadoop.fs.s3a.path.style.access: "True"
+    spark.hadoop.fs.s3a.fast.upload: "True"
+    spark.sql.extensions: "io.delta.sql.DeltaSparkSessionExtension"
+    spark.sql.catalog.spark_catalog: "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+    spark.driver.cores: "1"
+    spark.driver.memoryOverhead: "1024m"
+    spark.driver.memory: "4000m"
+    spark.spark.executor.instances: "2"
+    spark.executor.cores: "4"
+    spark.executor.memoryOverhead: "512m"
+    spark.executor.memory: "2048m"
+  sparkVersion: "3.3.2"
+  restartPolicy:
+    type: Never
+  driver:
+    cores: 
+    memory: "1024m"
+    serviceAccount: spark-operator-spark
+    envFrom:
+      - secretRef:
+          name: aws-secret
+  executor:
+    cores: 4
+    instances: 2
+    memory: "6144m"
+    envFrom:
+      - secretRef:
+          name: aws-secret
