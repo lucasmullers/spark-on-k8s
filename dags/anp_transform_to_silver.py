@@ -81,7 +81,7 @@ with DAG(
     job_informacao_venda = SparkKubernetesOperator(
         task_id="create_silver_informacao_venda",
         namespace="processing",
-        application_file="spark-jobs/silver_informacao_venda.yaml",
+        application_file="spark-jobs/elt-anp-silver-informacao-venda.yaml",
         kubernetes_conn_id="kubernetes_in_cluster",
         dag=dag,
     )
