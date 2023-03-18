@@ -42,7 +42,7 @@ with DAG(
     max_active_runs=1,
     concurrency=1,
     schedule_interval="0 9 1,15 * *",
-    catchup=True,
+    catchup=False,
     dagrun_timeout=timedelta(minutes=45),
     tags=["ANP", "BRONZE"],
     doc_md="DAG to Transforma ANP DATA from Landing Zone to Bronze Layer",
