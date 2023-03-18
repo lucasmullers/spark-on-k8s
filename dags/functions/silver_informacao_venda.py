@@ -32,7 +32,7 @@ def create_informacao_venda_table():
     informacao_venda_df = (
         # Seleciona as colunas de interesse e renomeia
         df.select(
-            col("cnpj_revenda").alias("cnpj"),
+            col("cnpj_da_revenda").alias("cnpj"),
             "produto",
             "valor_de_venda",
             "valor_de_compra",
