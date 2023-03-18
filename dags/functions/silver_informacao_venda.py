@@ -32,23 +32,23 @@ def create_informacao_venda_table():
     informacao_venda_df = (
         # Seleciona as colunas de interesse e renomeia
         df.select(
-            "cnpj",
+            col("cnpj_revenda").alias("cnpj"),
             "produto",
-            "valor_venda",
-            "valor_compra",
-            "unidade_medida",
-            "data_coleta",
+            "valor_de_venda",
+            "valor_de_compra",
+            "unidade_de_medida",
+            "data_da_coleta",
             "bandeira"
         )
         # Remove pontuações do cnpj
         .withColumn("cnpj", trim(regexp_replace("cnpj", r"[.\-/]", "")))
         # Converte string para data
-        .withColumn("data_coleta", to_date("data_coleta", "dd/MM/yyyy"))
+        .withColumn("data_da_coleta", to_date("data_da_coleta", "dd/MM/yyyy"))
         # Converte valor de venda e compra do padrão PT-BR para o padrão US
-        .withColumn("valor_compra", regexp_replace("valor_compra", ",", ".").cast("float"))
-        .withColumn("valor_venda", regexp_replace("valor_venda", ",", ".").cast("float"))
+        .withColumn("valor_de_compra", regexp_replace("valor_de_compra", ",", ".").cast("float"))
+        .withColumn("valor_de_venda", regexp_replace("valor_de_venda", ",", ".").cast("float"))
         # Remove registros (8) com Data de Coleta nulos
-        .filter(col("data_coleta").isNotNull())
+        .filter(col("data_da_coleta").isNotNull())
     )
 
     # Salva dados de vendas dos postos na camada silver

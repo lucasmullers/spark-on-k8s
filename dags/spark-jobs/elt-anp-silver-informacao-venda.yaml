@@ -18,18 +18,18 @@ spec:
     spark.sql.extensions: "io.delta.sql.DeltaSparkSessionExtension"
     spark.sql.catalog.spark_catalog: "org.apache.spark.sql.delta.catalog.DeltaCatalog"
     spark.driver.cores: "1"
-    spark.driver.memoryOverhead: "1024m"
-    spark.driver.memory: "4000m"
-    spark.spark.executor.instances: "2"
-    spark.executor.cores: "4"
-    spark.executor.memoryOverhead: "512m"
+    spark.driver.memoryOverhead: "102m"
+    spark.driver.memory: "1024m"
+    spark.executor.instances: "2"
+    spark.executor.cores: "2"
+    spark.executor.memoryOverhead: "205m"
     spark.executor.memory: "2048m"
   sparkVersion: "3.3.2"
   restartPolicy:
     type: Never
   driver:
     cores: 
-    memory: "1024m"
+    memory: "1126m"
     serviceAccount: spark-operator-spark
     envFrom:
       - secretRef:
@@ -37,7 +37,7 @@ spec:
   executor:
     cores: 4
     instances: 2
-    memory: "6144m"
+    memory: "2253m"
     envFrom:
       - secretRef:
           name: aws-secret

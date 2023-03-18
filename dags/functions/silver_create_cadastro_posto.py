@@ -32,17 +32,17 @@ def create_cadastro_posto_table():
     cadastro_posto_df = (
         # Seleciona as colunas de interesse e renomeia
         df.select(
-            "regiao",
-            "estado",
+            "regiao_sigla",
+            "estado_sigla",
             "municipio",
-            "nome_posto",
-            "cnpj",
+            col("revenda").alias("nome_posto"),
+            col("cnpj_da_revenda").alias("cnpj"),
             "nome_da_rua",
             "numero_rua",
             "complemento",
             "bairro",
             "cep",
-            "data_coleta",
+            "data_da_coleta",
             "bandeira"
         )
         # Remove pontuações do cnpj e do cep
@@ -51,12 +51,12 @@ def create_cadastro_posto_table():
         # Converte número da rua para int
         .withColumn("numero_rua", regexp_replace("numero_rua", ",", "").cast("int"))
         # Renomeia regioes
-        .withColumn("regiao", when(col("regiao") == "NE", "nordeste")
-                    .when(col("regiao") == "N", "norte")
-                    .when(col("regiao") == "S", "sul")
-                    .when(col("regiao") == "N", "norte")
-                    .when(col("regiao") == "SE", "sudeste")
-                    .when(col("regiao") == "CO", "centro-oeste"))
+        .withColumn("regiao_sigla", when(col("regiao_sigla") == "NE", "nordeste")
+                    .when(col("regiao_sigla") == "N", "norte")
+                    .when(col("regiao_sigla") == "S", "sul")
+                    .when(col("regiao_sigla") == "N", "norte")
+                    .when(col("regiao_sigla") == "SE", "sudeste")
+                    .when(col("regiao_sigla") == "CO", "centro-oeste"))
     )
 
     # Salva dados cadastrais dos postos na camada silver
