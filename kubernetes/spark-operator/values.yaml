@@ -143,13 +143,13 @@ podLabels: {}
 # Note, that each job submission will spawn a JVM within the Spark Operator Pod using "/usr/local/openjdk-11/bin/java -Xmx128m".
 # Kubernetes may kill these Java processes at will to enforce resource limits. When that happens, you will see the following error:
 # 'failed to run spark-submit for SparkApplication [...]: signal: killed' - when this happens, you may want to increase memory limits.
-resources: {}
-  # limits:
-  #   cpu: 100m
-  #   memory: 300Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 300Mi
+resources:
+  limits:
+    cpu: "8"
+    memory: 8Gi
+  requests:
+    cpu: "8"
+    memory: 8Gi
 
 batchScheduler:
   # -- Enable batch scheduler for spark jobs scheduling. If enabled, users can specify batch scheduler name in spark application
