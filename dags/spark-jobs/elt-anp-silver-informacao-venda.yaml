@@ -35,7 +35,7 @@ spec:
       - secretRef:
           name: aws-secret
   executor:
-    cores: 4
+    cores: 2
     instances: 2
     memory: "2253m"
     envFrom:
