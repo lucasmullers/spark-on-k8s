@@ -51,12 +51,11 @@ def create_cadastro_posto_table():
         # Converte número da rua para int
         .withColumn("numero_rua", regexp_replace("numero_rua", ",", "").cast("int"))
         # Renomeia regioes
-        .withColumn("regiao_sigla", when(col("regiao_sigla") == "NE", "nordeste")
-                    .when(col("regiao_sigla") == "N", "norte")
-                    .when(col("regiao_sigla") == "S", "sul")
-                    .when(col("regiao_sigla") == "N", "norte")
-                    .when(col("regiao_sigla") == "SE", "sudeste")
-                    .when(col("regiao_sigla") == "CO", "centro-oeste"))
+        .withColumn("regiao_sigla", when(col("regiao_sigla") == "NE", "Nordeste")
+                    .when(col("regiao_sigla") == "N", "Norte")
+                    .when(col("regiao_sigla") == "S", "Sul")
+                    .when(col("regiao_sigla") == "SE", "Sudeste")
+                    .when(col("regiao_sigla") == "CO", "Centro-Oeste"))
         .dropDuplicates()
     )
 
