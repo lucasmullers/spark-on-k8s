@@ -57,6 +57,7 @@ def create_informacao_venda_table():
         .format("delta")
         .mode("overwrite")
         .option("header", "true")
+        .option("overwriteSchema", "true")
         .save("s3a://etl-lakehouse/SILVER/informacao_venda/")
     )
 

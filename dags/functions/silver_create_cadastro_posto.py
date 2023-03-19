@@ -66,6 +66,7 @@ def create_cadastro_posto_table():
         .format("delta")
         .mode("overwrite")
         .option("header", "true")
+        .option("overwriteSchema", "true")
         .save("s3a://etl-lakehouse/SILVER/cadastro_posto/")
     )
 
