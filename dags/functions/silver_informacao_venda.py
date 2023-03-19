@@ -37,9 +37,7 @@ def create_informacao_venda_table():
             "valor_de_venda",
             "valor_de_compra",
             "unidade_de_medida",
-            "data_da_coleta",
-            "bandeira"
-        )
+            "data_da_coleta")
         # Remove pontuações do cnpj
         .withColumn("cnpj", trim(regexp_replace("cnpj", r"[.\-/]", "")))
         # Converte string para data
@@ -49,6 +47,7 @@ def create_informacao_venda_table():
         .withColumn("valor_de_venda", regexp_replace("valor_de_venda", ",", ".").cast("float"))
         # Remove registros (8) com Data de Coleta nulos
         .filter(col("data_da_coleta").isNotNull())
+        .dropDuplicates()
     )
 
     # Salva dados de vendas dos postos na camada silver

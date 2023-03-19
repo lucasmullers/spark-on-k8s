@@ -57,6 +57,7 @@ def create_cadastro_posto_table():
                     .when(col("regiao_sigla") == "N", "norte")
                     .when(col("regiao_sigla") == "SE", "sudeste")
                     .when(col("regiao_sigla") == "CO", "centro-oeste"))
+        .dropDuplicates()
     )
 
     # Salva dados cadastrais dos postos na camada silver
