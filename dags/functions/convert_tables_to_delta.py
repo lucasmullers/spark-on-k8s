@@ -24,6 +24,7 @@ def chunks(lst, n):
 def optimize_delta_tables(spark: SparkSession, path: str):
     from delta.tables import DeltaTable
     delta_table = DeltaTable.forPath(spark, path)
+    delta_table.vacuum(retentionHours=168)
     delta_table.optimize().executeCompaction()
 
 
@@ -76,7 +77,7 @@ def transform_tables_to_delta():
         # Salva dados no Lake
         df.write
         .format("delta")
-        .mode("append")
+        .mode("overwrite")
         .option("header", "true")
         .save("s3a://etl-lakehouse/BRONZE/anp/")
     )

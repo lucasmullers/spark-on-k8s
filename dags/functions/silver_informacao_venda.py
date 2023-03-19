@@ -19,8 +19,8 @@ def create_spark_session(connection_id: str = "aws"):
 def optimize_compaction_and_run_vacuum(spark: SparkSession, path: str = ""):
     from delta.tables import DeltaTable
     delta_table = DeltaTable.forPath(spark, path)
-    delta_table.optimize().executeCompaction()
     delta_table.vacuum(retentionHours=168)
+    delta_table.optimize().executeCompaction()
 
 
 def create_informacao_venda_table():
